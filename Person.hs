@@ -34,6 +34,3 @@ son = Person "Nathaniel" "Pakkianathan"
 
 test_comparePerson = comparePerson father son
 
--- Usage
--- sortBy compareLastNames names
-
