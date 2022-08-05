@@ -1,3 +1,5 @@
+module Chap04 where
+
 addressLetter name location = nameText ++ " - " ++ location
   where
     nameText = fst name ++ " " ++ snd name

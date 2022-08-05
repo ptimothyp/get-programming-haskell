@@ -1,3 +1,5 @@
+import Chap04
+
 ifEven f x =
   if even x
     then f x
@@ -24,4 +26,12 @@ getRequestUrl host apiKey resource id =
     ++ "/"
     ++ apiKey
 
+getBookFromExample = getRequestUrl "http://example.com" "1337hAsk3ll" "book"
 
+flipBinaryArgs func arg1 arg2 = func arg2 arg1
+
+flipBinaryArgs' func = \x y -> func y x
+
+addressLetterFlip = flipBinaryArgs addressLetter
+
+adressLetterNY = addressLetterFlip "NY"
