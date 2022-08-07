@@ -1,3 +1,4 @@
+import Data.Char
 myMap func [] = []
 myMap func (x : xs) = func x : myMap func xs
 
@@ -45,3 +46,7 @@ isPalindrome s = firstHalfString s == secondHalfReversed s
 --   where
 --     secondHalfString = drop (if even pickLength then pickLength else pickLength + 1) s
 --     reverseHalfString = reverse secondHalfString
+isPalindrome s = nospacelower == reverse nospacelower
+    where
+      nospacelower = filter (/= ' ') lower
+      lower = map toLower s
