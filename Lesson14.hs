@@ -1,9 +1,10 @@
-data SixSidedDice = S1
-                  | S2
-                  | S3
-                  | S4
-                  | S5
-                  | S6
+data SixSidedDice
+  = S1
+  | S2
+  | S3
+  | S4
+  | S5
+  | S6
 
 -- instance Show SixSidedDice where
 --   show S1 = "one"
@@ -14,12 +15,12 @@ data SixSidedDice = S1
 --   show S6 = "six"
 
 instance Show SixSidedDice where
-  show S1 = "1"
-  show S2 = "2"
-  show S3 = "3"
-  show S4 = "4"
-  show S5 = "5"
-  show S6 = "6"
+  show S1 = "I"
+  show S2 = "II"
+  show S3 = "III"
+  show S4 = "IV"
+  show S5 = "V"
+  show S6 = "VI"
 
 instance Eq SixSidedDice where
   (==) S1 S1 = True
