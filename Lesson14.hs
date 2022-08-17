@@ -5,6 +5,7 @@ data SixSidedDice
   | S4
   | S5
   | S6
+  deriving (Ord, Enum)
 
 -- instance Show SixSidedDice where
 --   show S1 = "one"
