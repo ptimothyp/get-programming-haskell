@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-deferred-type-errors #-}
+
 data FourLetterAlphabet = L1 | L2 | L3 | L4 deriving (Show, Enum, Bounded)
 
 rotN :: (Bounded a, Enum a) => Int -> a -> a
@@ -99,3 +101,58 @@ intToBits n = leadingFalses ++ reversedBits
     reversedBits = reverse (intToBits' n)
     missingBits = maxBits - length reversedBits
     leadingFalses = replicate missingBits False
+
+charToBits :: Char -> Bits
+charToBits char = intToBits (fromEnum char)
+
+bitsToInt :: Bits -> Int
+bitsToInt bits = sum (map (\x -> 2 ^ (snd x)) trueLocations)
+  where
+    size = length bits
+    indices = [size -1, size -2 .. 0]
+    trueLocations =
+      filter
+        fst
+        (zip bits indices)
+
+bitsToChar :: Bits -> Char
+bitsToChar bits = toEnum (bitsToInt bits)
+
+myPad :: String
+myPad = "Shhhhhh"
+
+myPlainText :: String
+myPlainText = "Haskell"
+
+applyOTP' :: String -> String -> [Bits]
+applyOTP' pad plaintext =
+  map
+    (\pair -> (fst pair) `xor` (snd pair))
+    (zip padBits plaintextBits)
+  where
+    padBits = map charToBits pad
+    plaintextBits = map charToBits plaintext
+
+applyOTP :: String -> String -> String
+applyOTP pad plaintext = map bitsToChar bitList
+  where
+    bitList = applyOTP' pad plaintext
+
+class Cipher a where
+  encode :: a -> String -> String
+  decode :: a -> String -> String
+
+data Rot = Rot
+
+instance Cipher Rot where
+  encode Rot text = rotEncoder text
+  decode Rot text = rotDecoder text
+
+data OneTimePad = OTP String
+
+instance Cipher OneTimePad where
+  encode (OTP pad) text = applyOTP pad text
+  decode (OTP pad) text = applyOTP pad text
+
+myOTP :: OneTimePad
+myOTP = OTP (cycle [minBound .. maxBound])
