@@ -1,7 +1,7 @@
-import Data.List
+import Data.List ()
 import qualified Data.Map as Map
-import Data.Maybe
-import Data.Semigroup
+import Data.Maybe (fromJust, isJust)
+import Data.Semigroup 
 
 file1 :: [(Int, Double)]
 file1 =
@@ -62,9 +62,73 @@ createTS times values = TS completeTimes extendedValues
   where
     completeTimes = [minimum times .. maximum times]
     timeValueMap = Map.fromList (zip times values)
-    extendedValues = map (\v -> Map.lookup v timeValueMap) completeTimes
+    extendedValues = map (`Map.lookup` timeValueMap) completeTimes
 
 fileToTS :: [(Int, a)] -> TS a
 fileToTS tvPairs = createTS times values
   where
     (times, values) = unzip tvPairs
+
+showTVPair :: Show a => Int -> Maybe a -> String
+showTVPair time (Just value) = mconcat [show time, "|", show value, "\n"]
+showTVPair time Nothing = mconcat [show time, "|", "N/A", "\n"]
+
+instance Show a => Show (TS a) where
+  show (TS times values) = mconcat rows
+    where rows = zipWith showTVPair times values
+
+ts1 = fileToTS file1
+ts2 = fileToTS file2
+ts3 = fileToTS file3
+
+insertMaybePair :: Ord k => Map.Map k v -> (k, Maybe v) -> Map.Map k v
+insertMaybePair myMap (_, Nothing) = myMap
+insertMaybePair myMap (k, Just value) = Map.insert  k value myMap
+
+combineTS :: TS a -> TS a -> TS a
+combineTS (TS [] []) ts2 = ts2
+combineTS  ts2 (TS [] []) = ts2
+combineTS (TS t1 v1) (TS t2 v2) = TS tsCompleteTime tsCompleteValues
+  where bothTimes = mconcat [t1,t2]
+        tsCompleteTime = [minimum bothTimes .. maximum bothTimes]
+        tvMap = foldl insertMaybePair Map.empty (zip t1 v1)
+        tvUpdatedMap = foldl insertMaybePair tvMap (zip t2 v2)
+        tsCompleteValues = map (`Map.lookup` tvUpdatedMap) tsCompleteTime
+
+instance Semigroup (TS a) where
+  (<>) = combineTS
+
+instance Monoid (TS a) where
+  mempty = TS [] []
+  mappend = (<>)
+
+tsAll = mconcat [ts1, ts2, ts3]
+
+mean :: (Real a) => [a] -> Double
+mean xs = total/count
+  where total = (realToFrac . sum) xs
+        count = (realToFrac . length) xs
+
+-- meanTS :: (Real a) => TS a -> Maybe Double
+-- meanTS (TS _ []) = Nothing
+-- meanTS (TS times values) 
+--   | all (== Nothing) values = Nothing
+--   | otherwise = Just avg
+--             where justVals = filter isJust values
+--                   cleanVals = map fromJust justVals
+--                   avg = mean cleanVals
+
+
+meanTS :: (Real a) => TS a -> Maybe Double
+meanTS (TS _ []) = Nothing
+meanTS (TS times values) = if all (== Nothing) values
+                          then Nothing
+                            else Just avg
+    where justVals = filter isJust values
+          cleanVals = map fromJust justVals
+          avg = mean cleanVals
+
+
+
+
+
