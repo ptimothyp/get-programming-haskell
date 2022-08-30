@@ -148,3 +148,17 @@ makeTSCompare func = newFunc
       if func val1 val2 == val1
         then (i1, Just val1)
         else (i2, Just val2)
+
+compareTS :: (Eq a) => CompareFunc a -> TS a -> Maybe (Int, Maybe a)
+compareTS fun (TS [] []) = Nothing
+compareTS fun (TS times values) = if all (== Nothing) values
+                                     then Nothing
+                                     else Just best
+                                       where pairs = zip times values
+                                             best = foldl (makeTSCompare fun) (0, Nothing) pairs
+
+minTS :: (Ord a) => TS a -> Maybe (Int, Maybe a)
+minTS = compareTS min
+
+maxTS :: (Ord a) => TS a -> Maybe (Int, Maybe a)
+maxTS = compareTS max
